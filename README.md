@@ -4,13 +4,17 @@
 
 A reverse-engineered proxy server that bridges the gap between your applications and Midjourney's web interface. When there is no official API, you build your own.
 
+## 📋 Quick Summary
+
+> 🎨 **API-Less Creative Automation** 是一套逆向工程的 Midjourney 代理伺服器，解決 Midjourney 不提供官方公開 API 的痛點。系統透過 🎭 Playwright 維持一個持久化的 Chromium 瀏覽器會話，自動保存登入狀態與 Cookie 🍪，然後在其上層封裝出完整的 🔌 REST API 與 WebSocket 即時通訊介面。任何外部應用——無論是 📱 行動 App、🌐 網頁前端或後端服務——都能透過標準 HTTP 請求觸發 Midjourney 的影片生成、圖片上傳、動畫製作等操作。每個生成任務分配唯一 Job ID 🆔，支援輪詢或 WebSocket 訂閱追蹤進度百分比與狀態變化。檔案上傳管線透過 📁 Multer 支援最大 50MB 的參考圖片。技術架構為 ⚡ Node.js + Express + Playwright + WebSocket，伺服器啟動於 localhost:3001，附帶內建管理儀表板 📊 可視化管理瀏覽器會話與監控任務狀態。適合需要將 Midjourney 整合進自動化工作流的創意團隊與開發者 🚀。
+
 ---
 
-## Why This Exists
+## 🤔 Why This Exists
 
 Midjourney does not offer a public API for programmatic video and image generation. This project solves that constraint by using headless browser automation as a proxy layer, giving any application -- mobile, web, or backend -- full REST API access to Midjourney's creative engine.
 
-## Architecture
+## 🏗️ Architecture
 
 ```
 Mobile App / Web Client
@@ -27,7 +31,7 @@ Mobile App / Web Client
 
 The system maintains a persistent authenticated browser session via Playwright, then exposes a clean REST API and real-time WebSocket interface so that external applications can trigger and monitor Midjourney operations without ever touching the browser directly.
 
-### How It Works
+### ⚙️ How It Works
 
 1. **Browser Session Management** -- Launches and maintains a Chromium instance with persistent cookies and login state stored in `.browser-data/`.
 2. **REST API Layer** -- Express server on port 3001 exposes endpoints for video generation, image upload, animation, job status tracking, and creation retrieval.
@@ -35,7 +39,7 @@ The system maintains a persistent authenticated browser session via Playwright, 
 4. **Job Tracking** -- Each generation request is assigned a job ID. Clients can poll or subscribe for status updates until completion.
 5. **Image Upload Pipeline** -- Supports uploading reference images (up to 50MB) via Multer, which are then fed into Midjourney workflows.
 
-### Key API Endpoints
+### 🔌 Key API Endpoints
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
@@ -50,7 +54,7 @@ The system maintains a persistent authenticated browser session via Playwright, 
 | GET | `/creations` | List all creations |
 | POST | `/videos/fetch` | Batch fetch video data |
 
-## Tech Stack
+## 🛠️ Tech Stack
 
 - **Runtime**: Node.js (ES Modules)
 - **Server**: Express.js with CORS
@@ -59,7 +63,7 @@ The system maintains a persistent authenticated browser session via Playwright, 
 - **File Handling**: Multer (up to 50MB image uploads)
 - **Session Persistence**: File-based browser data directory
 
-## Quick Start
+## 🏁 Quick Start
 
 ```bash
 # Install dependencies
@@ -77,13 +81,13 @@ npm run dev
 
 The server starts on `http://localhost:3001`. Open the built-in dashboard at the root URL to manage browser sessions and monitor jobs visually.
 
-### First-Time Setup
+### 🔑 First-Time Setup
 
 1. Start the server and launch the browser via `POST /browser/launch`.
 2. Log into your Midjourney account in the opened browser window.
 3. The session cookies are saved automatically -- subsequent launches restore the authenticated session.
 
-### Client Integration Example (Expo / React Native)
+### 📱 Client Integration Example (Expo / React Native)
 
 ```typescript
 const PROXY_URL = 'http://localhost:3001';
@@ -99,7 +103,7 @@ const response = await fetch(`${PROXY_URL}/video/animate`, {
 const status = await fetch(`${PROXY_URL}/job/${jobId}/status`).then(r => r.json());
 ```
 
-## Project Structure
+## 📁 Project Structure
 
 ```
 api-less-creative-automation/
