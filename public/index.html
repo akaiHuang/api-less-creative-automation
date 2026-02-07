@@ -1,0 +1,1912 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MJ</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+      background: #0a0a0a;
+      min-height: 100vh;
+      color: #fff;
+      padding: 24px;
+      position: relative;
+      overflow-x: hidden;
+    }
+    
+    /* Ambient background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: 
+        radial-gradient(ellipse at 20% 20%, rgba(120, 0, 255, 0.15) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(0, 200, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(255, 0, 150, 0.05) 0%, transparent 50%);
+      z-index: -1;
+      animation: ambientMove 20s ease-in-out infinite;
+    }
+    
+    @keyframes ambientMove {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      50% { transform: translate(-2%, -2%) rotate(1deg); }
+    }
+    
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+    
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    
+    .logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+    
+    .logo svg {
+      width: 40px;
+      height: 40px;
+    }
+    
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.7) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .subtitle {
+      color: rgba(255,255,255,0.4);
+      font-size: 0.875rem;
+      margin-top: 4px;
+    }
+    
+    /* Glass Card */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 
+        0 4px 24px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+    
+    /* Status Panel */
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    
+    .status-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      padding: 20px 16px;
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      transition: all 0.3s ease;
+    }
+    
+    .status-item:hover {
+      background: rgba(255, 255, 255, 0.04);
+    }
+    
+    .status-icon {
+      width: 32px;
+      height: 32px;
+      color: rgba(255, 255, 255, 0.5);
+      transition: color 0.3s ease;
+    }
+    
+    .status-item.active .status-icon {
+      color: #00ff88;
+    }
+    
+    .status-item.pending .status-icon {
+      color: #ffaa00;
+      animation: iconPulse 1.5s infinite;
+    }
+    
+    .status-item.error .status-icon {
+      color: #ff4466;
+    }
+    
+    @keyframes iconPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    
+    .status-label {
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.5);
+      text-align: center;
+    }
+    
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      transition: all 0.3s ease;
+    }
+    
+    .status-item.active .status-dot {
+      background: #00ff88;
+      box-shadow: 0 0 12px #00ff88;
+    }
+    
+    .status-item.pending .status-dot {
+      background: #ffaa00;
+      box-shadow: 0 0 12px #ffaa00;
+      animation: dotPulse 1.5s infinite;
+    }
+    
+    .status-item.error .status-dot {
+      background: #ff4466;
+      box-shadow: 0 0 12px #ff4466;
+    }
+    
+    @keyframes dotPulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.2); opacity: 0.6; }
+    }
+    
+    /* Buttons */
+    .btn-group {
+      display: flex;
+      gap: 12px;
+    }
+    
+    .btn {
+      flex: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 16px 28px;
+      border: none;
+      border-radius: 100px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .btn svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .btn-primary:hover:not(:disabled) {
+      background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.08) 100%);
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    }
+    
+    .btn-primary:active:not(:disabled) {
+      transform: translateY(0);
+    }
+    
+    .btn-primary:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+    
+    .btn-glow {
+      background: linear-gradient(135deg, #00ff88 0%, #00cc6a 100%);
+      color: #000;
+      border: none;
+      font-weight: 600;
+    }
+    
+    .btn-glow:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(0, 255, 136, 0.3);
+    }
+    
+    .btn-glow:disabled {
+      background: rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.3);
+      cursor: not-allowed;
+    }
+    
+    /* Upload Section */
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.7);
+    }
+    
+    .section-title svg {
+      width: 18px;
+      height: 18px;
+      color: rgba(255, 255, 255, 0.4);
+    }
+    
+    /* Upload Dropzone */
+    .upload-dropzone {
+      border: 2px dashed rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      padding: 32px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-bottom: 16px;
+      position: relative;
+      overflow: hidden;
+      background: rgba(0, 0, 0, 0.2);
+    }
+    
+    .upload-dropzone:hover {
+      border-color: rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.02);
+    }
+    
+    .upload-dropzone.dragover {
+      border-color: #00ff88;
+      background: rgba(0, 255, 136, 0.05);
+      box-shadow: 0 0 20px rgba(0, 255, 136, 0.1);
+    }
+    
+    .upload-dropzone.has-file {
+      border-style: solid;
+      border-color: rgba(0, 255, 136, 0.3);
+    }
+    
+    .dropzone-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .dropzone-content svg {
+      width: 48px;
+      height: 48px;
+      color: rgba(255, 255, 255, 0.3);
+      transition: all 0.3s ease;
+    }
+    
+    .upload-dropzone:hover .dropzone-content svg {
+      color: rgba(255, 255, 255, 0.5);
+      transform: translateY(-4px);
+    }
+    
+    .upload-dropzone.dragover .dropzone-content svg {
+      color: #00ff88;
+      transform: translateY(-8px);
+    }
+    
+    .dropzone-text {
+      font-size: 1rem;
+      color: rgba(255, 255, 255, 0.6);
+      margin: 0;
+    }
+    
+    .dropzone-hint {
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.3);
+      margin: 0;
+    }
+    
+    /* Preview */
+    .dropzone-preview {
+      position: relative;
+    }
+    
+    .dropzone-preview img {
+      max-width: 100%;
+      max-height: 200px;
+      border-radius: 12px;
+      object-fit: contain;
+    }
+    
+    .preview-remove {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(255, 68, 102, 0.9);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+    
+    .preview-remove svg {
+      width: 14px;
+      height: 14px;
+      color: #fff;
+    }
+    
+    .preview-remove:hover {
+      background: #ff4466;
+      transform: scale(1.1);
+    }
+    
+    .preview-name {
+      margin-top: 12px;
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.5);
+      word-break: break-all;
+    }
+    
+    /* Batch Upload Queue */
+    .upload-queue {
+      margin-top: 16px;
+    }
+    
+    .queue-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      margin-bottom: 8px;
+      transition: all 0.3s ease;
+    }
+    
+    .queue-item:hover {
+      background: rgba(255, 255, 255, 0.04);
+    }
+    
+    .queue-item.processing {
+      border-color: rgba(255, 170, 0, 0.3);
+      background: rgba(255, 170, 0, 0.05);
+    }
+    
+    .queue-item.completed {
+      border-color: rgba(0, 255, 136, 0.3);
+      background: rgba(0, 255, 136, 0.05);
+    }
+    
+    .queue-item.error {
+      border-color: rgba(255, 68, 102, 0.3);
+      background: rgba(255, 68, 102, 0.05);
+    }
+    
+    .queue-thumb {
+      width: 48px;
+      height: 48px;
+      border-radius: 8px;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+    
+    .queue-info {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .queue-name {
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.8);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .queue-status {
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.4);
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .queue-status.processing {
+      color: #ffaa00;
+    }
+    
+    .queue-status.completed {
+      color: #00ff88;
+    }
+    
+    .queue-status.error {
+      color: #ff4466;
+    }
+    
+    .queue-status svg {
+      width: 12px;
+      height: 12px;
+    }
+    
+    .queue-status.processing svg {
+      animation: spin 1s linear infinite;
+    }
+    
+    .queue-progress {
+      height: 3px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 100px;
+      margin-top: 6px;
+      overflow: hidden;
+    }
+    
+    .queue-progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #ffaa00, #ff6600);
+      border-radius: 100px;
+      transition: width 0.3s ease;
+    }
+    
+    .queue-item.completed .queue-progress-bar {
+      width: 100%;
+      background: #00ff88;
+    }
+    
+    .queue-remove {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.2s ease;
+    }
+    
+    .queue-remove:hover {
+      background: rgba(255, 68, 102, 0.2);
+      border-color: rgba(255, 68, 102, 0.3);
+    }
+    
+    .queue-remove svg {
+      width: 14px;
+      height: 14px;
+      color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .queue-remove:hover svg {
+      color: #ff4466;
+    }
+    
+    .queue-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    
+    .queue-title {
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .queue-clear {
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.4);
+      cursor: pointer;
+      padding: 4px 10px;
+      border-radius: 100px;
+      background: rgba(255, 255, 255, 0.05);
+      transition: all 0.2s ease;
+    }
+    
+    .queue-clear:hover {
+      background: rgba(255, 68, 102, 0.2);
+      color: #ff4466;
+    }
+    
+    /* Multiple file preview grid */
+    .preview-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    
+    .preview-item {
+      position: relative;
+      aspect-ratio: 1;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    
+    .preview-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .preview-item .preview-remove {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 20px;
+      height: 20px;
+    }
+    
+    .preview-item .preview-remove svg {
+      width: 10px;
+      height: 10px;
+    }
+    
+    /* Divider */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 16px 0;
+    }
+    
+    .divider::before,
+    .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.1);
+    }
+    
+    .divider span {
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.3);
+    }
+    
+    .input-field {
+      width: 100%;
+      padding: 16px 20px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 16px;
+      color: #fff;
+      font-size: 0.9rem;
+      font-family: 'SF Mono', 'Monaco', monospace;
+      transition: all 0.3s ease;
+      margin-bottom: 16px;
+    }
+    
+    .input-field::placeholder {
+      color: rgba(255, 255, 255, 0.25);
+    }
+    
+    .input-field:focus {
+      outline: none;
+      border-color: rgba(255, 255, 255, 0.15);
+      background: rgba(0, 0, 0, 0.4);
+    }
+    
+    /* Checkbox */
+    .checkbox-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      cursor: pointer;
+    }
+    
+    .checkbox-wrapper input {
+      display: none;
+    }
+    
+    .checkbox-custom {
+      width: 22px;
+      height: 22px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+    
+    .checkbox-custom svg {
+      width: 14px;
+      height: 14px;
+      color: #000;
+      opacity: 0;
+      transform: scale(0.5);
+      transition: all 0.2s ease;
+    }
+    
+    .checkbox-wrapper input:checked + .checkbox-custom {
+      background: #00ff88;
+      border-color: #00ff88;
+    }
+    
+    .checkbox-wrapper input:checked + .checkbox-custom svg {
+      opacity: 1;
+      transform: scale(1);
+    }
+    
+    .checkbox-label {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.6);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .checkbox-label svg {
+      width: 16px;
+      height: 16px;
+    }
+    
+    /* Log Section */
+    .log-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    
+    .log-container {
+      height: 200px;
+      overflow-y: auto;
+      font-family: 'SF Mono', 'Monaco', 'Menlo', monospace;
+      font-size: 0.8rem;
+      line-height: 1.8;
+      padding: 4px;
+    }
+    
+    .log-container::-webkit-scrollbar {
+      width: 4px;
+    }
+    
+    .log-container::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    
+    .log-container::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+    }
+    
+    .log-entry {
+      padding: 6px 12px;
+      border-radius: 8px;
+      margin-bottom: 4px;
+      background: rgba(255, 255, 255, 0.02);
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    
+    .log-entry svg {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    
+    .log-entry.info { color: rgba(255, 255, 255, 0.6); }
+    .log-entry.info svg { color: #3b82f6; }
+    
+    .log-entry.success { color: #00ff88; }
+    .log-entry.success svg { color: #00ff88; }
+    
+    .log-entry.error { color: #ff4466; }
+    .log-entry.error svg { color: #ff4466; }
+    
+    .log-entry.warning { color: #ffaa00; }
+    .log-entry.warning svg { color: #ffaa00; }
+    
+    .log-time {
+      color: rgba(255, 255, 255, 0.25);
+      font-size: 0.75rem;
+      margin-left: auto;
+      flex-shrink: 0;
+    }
+    
+    .log-text {
+      flex: 1;
+    }
+    
+    /* WebSocket indicator */
+    .ws-indicator {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(10px);
+      border-radius: 100px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .ws-indicator .status-dot {
+      width: 6px;
+      height: 6px;
+    }
+    
+    /* Progress Section */
+    .progress-section {
+      display: none;
+    }
+    
+    .progress-section.active {
+      display: block;
+    }
+    
+    .progress-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    
+    .progress-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.6);
+    }
+    
+    .progress-status svg {
+      width: 16px;
+      height: 16px;
+      animation: spin 1s linear infinite;
+    }
+    
+    .progress-status.complete svg {
+      animation: none;
+      color: #00ff88;
+    }
+    
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    
+    .progress-percent {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #00ff88 0%, #00cc6a 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .progress-bar-container {
+      height: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 100px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+    
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #00ff88 0%, #00cc6a 50%, #00ff88 100%);
+      background-size: 200% 100%;
+      border-radius: 100px;
+      transition: width 0.5s ease;
+      animation: shimmer 2s ease-in-out infinite;
+    }
+    
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.4);
+    }
+    
+    /* Video Grid */
+    .video-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-top: 20px;
+    }
+    
+    .video-card {
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      aspect-ratio: 1 / 1;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .video-card:hover {
+      border-color: rgba(255, 255, 255, 0.15);
+      transform: scale(1.02);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+    
+    .video-card video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .video-card .video-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 16px;
+    }
+    
+    .video-card:hover .video-overlay {
+      opacity: 1;
+    }
+    
+    .video-actions {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .video-btn {
+      padding: 10px 16px;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 100px;
+      color: #fff;
+      font-size: 0.8rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+    
+    .video-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+    
+    .video-btn svg {
+      width: 14px;
+      height: 14px;
+    }
+    
+    .video-btn.primary {
+      background: #00ff88;
+      color: #000;
+      border-color: #00ff88;
+    }
+    
+    .video-btn.primary:hover {
+      background: #00cc6a;
+    }
+    
+    .video-card .video-index {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      width: 28px;
+      height: 28px;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(10px);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #fff;
+    }
+    
+    .video-loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: rgba(255, 255, 255, 0.4);
+      gap: 12px;
+    }
+    
+    .video-loading svg {
+      width: 32px;
+      height: 32px;
+      animation: spin 1s linear infinite;
+    }
+    
+    .video-section {
+      display: block;
+    }
+    
+    .video-section.active {
+      display: block;
+    }
+    
+    .video-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    
+    .video-count {
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.5);
+      padding: 6px 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 100px;
+    }
+    
+    /* Responsive */
+    @media (max-width: 600px) {
+      .status-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .btn-group {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <div class="logo">
+        <svg viewBox="0 0 48 48" fill="none">
+          <rect x="4" y="8" width="40" height="32" rx="4" stroke="currentColor" stroke-width="2" fill="none"/>
+          <circle cx="24" cy="24" r="8" stroke="currentColor" stroke-width="2" fill="none"/>
+          <circle cx="24" cy="24" r="3" fill="currentColor"/>
+          <path d="M4 16h40" stroke="currentColor" stroke-width="2"/>
+        </svg>
+        <h1>MJ</h1>
+      </div>
+      <p class="subtitle">AI Video Generation Control Panel</p>
+    </div>
+    
+    <!-- Status Panel -->
+    <div class="glass-card">
+      <div class="status-grid">
+        <div class="status-item" id="serverStatusItem">
+          <svg class="status-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="3" width="20" height="14" rx="2"/>
+            <path d="M8 21h8M12 17v4"/>
+          </svg>
+          <span class="status-label">伺服器</span>
+          <div class="status-dot"></div>
+        </div>
+        <div class="status-item" id="browserStatusItem">
+          <svg class="status-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <circle cx="12" cy="12" r="4"/>
+            <path d="M21.17 8H12M12 8V2.83M2.83 8H12M12 21.17V12"/>
+          </svg>
+          <span class="status-label">Chrome</span>
+          <div class="status-dot"></div>
+        </div>
+        <div class="status-item" id="loginStatusItem">
+          <svg class="status-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2"/>
+            <circle cx="12" cy="16" r="1"/>
+            <path d="M7 11V7a5 5 0 0110 0v4"/>
+          </svg>
+          <span class="status-label">Midjourney</span>
+          <div class="status-dot"></div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Control Buttons -->
+    <div class="glass-card">
+      <div class="btn-group">
+        <button class="btn btn-primary" id="btnLaunch" onclick="launchAndConnect()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 00-2.91-.09z"/>
+            <path d="M12 15l-3-3a22 22 0 012-3.95A12.88 12.88 0 0122 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 01-4 2z"/>
+            <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/>
+          </svg>
+          啟動並連線
+        </button>
+        <button class="btn btn-primary" id="btnCheckLogin" onclick="checkLoginStatus()" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12a9 9 0 11-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/>
+            <path d="M21 3v5h-5"/>
+          </svg>
+          檢查狀態
+        </button>
+      </div>
+    </div>
+    
+    <!-- Upload Section -->
+    <div class="glass-card">
+      <div class="section-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+        </svg>
+        批次上傳（最多 4 張）
+      </div>
+      
+      <!-- 拖放上傳區域 -->
+      <div class="upload-dropzone" id="uploadDropzone">
+        <input type="file" id="fileInput" accept="image/*" multiple hidden>
+        <div class="dropzone-content">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+          <p class="dropzone-text">拖放多張圖片到此處</p>
+          <p class="dropzone-hint">最多 4 張，系統會自動排隊處理</p>
+        </div>
+        <div class="dropzone-preview" id="dropzonePreview" style="display: none;">
+          <div class="preview-grid" id="previewGrid"></div>
+          <div class="preview-name" id="previewName"></div>
+        </div>
+      </div>
+      
+      <!-- 上傳佇列 -->
+      <div class="upload-queue" id="uploadQueue" style="display: none;">
+        <div class="queue-header">
+          <span class="queue-title" id="queueTitle">待處理: 0 張</span>
+          <span class="queue-clear" onclick="clearQueue()">清除全部</span>
+        </div>
+        <div id="queueList"></div>
+      </div>
+      
+      <label class="checkbox-wrapper" style="margin-top: 16px;">
+        <input type="checkbox" id="loopOption" checked>
+        <div class="checkbox-custom">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+            <path d="M20 6L9 17l-5-5"/>
+          </svg>
+        </div>
+        <span class="checkbox-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 2l4 4-4 4"/>
+            <path d="M3 11v-1a4 4 0 014-4h14M7 22l-4-4 4-4"/>
+            <path d="M21 13v1a4 4 0 01-4 4H3"/>
+          </svg>
+          Loop 循環播放
+        </span>
+      </label>
+      <button class="btn btn-glow" id="btnGenerate" onclick="startBatchGeneration()" disabled style="width: 100%">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="5 3 19 12 5 21 5 3"/>
+        </svg>
+        <span id="btnGenerateText">開始生成</span>
+      </button>
+    </div>
+    
+    <!-- Progress Section -->
+    <div class="glass-card progress-section" id="progressSection">
+      <div class="progress-header">
+        <div class="section-title" style="margin-bottom: 0">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="2" width="20" height="20" rx="4"/>
+            <path d="M12 8v8M8 12h8"/>
+          </svg>
+          影片生成中
+        </div>
+        <span class="progress-percent" id="progressPercent">0%</span>
+      </div>
+      <div class="progress-bar-container">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+      <div class="progress-info">
+        <div class="progress-status" id="progressStatus">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+          </svg>
+          <span>處理中...</span>
+        </div>
+        <span id="progressJobId">--</span>
+      </div>
+    </div>
+    
+    <!-- Video Results Section -->
+    <div class="glass-card video-section" id="videoSection">
+      <div class="video-section-header">
+        <div class="section-title" style="margin-bottom: 0">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="2" width="20" height="20" rx="4"/>
+            <polygon points="10 8 16 12 10 16 10 8"/>
+          </svg>
+          生成結果
+        </div>
+        <div style="display: flex; gap: 12px; align-items: center;">
+          <span class="video-count" id="videoCount">0 部影片</span>
+          <button class="btn btn-primary" onclick="fetchVideos()" style="padding: 8px 16px; font-size: 0.8rem;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
+              <path d="M21 12a9 9 0 11-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/>
+              <path d="M21 3v5h-5"/>
+            </svg>
+            抓取影片
+          </button>
+        </div>
+      </div>
+      <div class="video-grid" id="videoGrid">
+        <!-- Videos will be inserted here -->
+      </div>
+    </div>
+    
+    <!-- Log Section -->
+    <div class="glass-card">
+      <div class="log-header">
+        <div class="section-title" style="margin-bottom: 0">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+            <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/>
+          </svg>
+          執行日誌
+        </div>
+      </div>
+      <div class="log-container" id="logContainer"></div>
+    </div>
+  </div>
+  
+  <!-- WebSocket Indicator -->
+  <div class="ws-indicator">
+    <div class="status-dot" id="wsStatusDot"></div>
+    <span id="wsStatusText">連線中</span>
+  </div>
+
+  <script>
+    // SVG Icons for logs
+    const icons = {
+      info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>',
+      success: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>',
+      error: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>',
+      warning: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg>'
+    };
+    
+    let ws = null;
+    let isLoggedIn = false;
+    let uploadedFile = null; // 儲存上傳的檔案
+    let uploadedFilePath = null; // 伺服器上的檔案路徑
+    
+    // 批次上傳佇列
+    let uploadQueue = []; // { id, file, filePath, status: 'pending'|'uploading'|'processing'|'completed'|'error', progress: 0, error: null }
+    let isProcessing = false;
+    let currentProcessingId = null;
+    
+    document.addEventListener('DOMContentLoaded', () => {
+      connectWebSocket();
+      checkServerStatus();
+      initDropzone();
+    });
+    
+    // ========== 批次拖放上傳功能 ==========
+    function initDropzone() {
+      const dropzone = document.getElementById('uploadDropzone');
+      const fileInput = document.getElementById('fileInput');
+      const preview = document.getElementById('dropzonePreview');
+      const previewGrid = document.getElementById('previewGrid');
+      const previewName = document.getElementById('previewName');
+      const content = dropzone.querySelector('.dropzone-content');
+      
+      // 點擊開啟檔案選擇器
+      dropzone.addEventListener('click', (e) => {
+        if (e.target.closest('.preview-remove')) return;
+        fileInput.click();
+      });
+      
+      // 檔案選擇
+      fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+          handleFiles(Array.from(e.target.files));
+        }
+      });
+      
+      // 拖放事件
+      dropzone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropzone.classList.add('dragover');
+      });
+      
+      dropzone.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('dragover');
+      });
+      
+      dropzone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('dragover');
+        
+        if (e.dataTransfer.files.length > 0) {
+          handleFiles(Array.from(e.dataTransfer.files));
+        }
+      });
+      
+      async function handleFiles(files) {
+        // 過濾非圖片檔案
+        const imageFiles = files.filter(f => f.type.startsWith('image/'));
+        
+        if (imageFiles.length === 0) {
+          addLog('error', '請上傳圖片檔案');
+          return;
+        }
+        
+        // 限制最多 4 張
+        const remainingSlots = 4 - uploadQueue.length;
+        if (remainingSlots <= 0) {
+          addLog('warning', '佇列已滿（最多 4 張），請等待處理完成或清除佇列');
+          return;
+        }
+        
+        const filesToAdd = imageFiles.slice(0, remainingSlots);
+        if (imageFiles.length > remainingSlots) {
+          addLog('warning', `只能再加入 ${remainingSlots} 張，已略過部分圖片`);
+        }
+        
+        // 加入佇列
+        for (const file of filesToAdd) {
+          const id = `upload-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+          const queueItem = {
+            id,
+            file,
+            fileName: file.name,
+            filePath: null,
+            status: 'uploading',
+            progress: 0,
+            error: null,
+            previewUrl: URL.createObjectURL(file)
+          };
+          
+          uploadQueue.push(queueItem);
+          addLog('info', `加入佇列: ${file.name}`);
+          
+          // 上傳到伺服器
+          try {
+            const formData = new FormData();
+            formData.append('image', file);
+            
+            const res = await fetch('/upload', {
+              method: 'POST',
+              body: formData
+            });
+            
+            const data = await res.json();
+            
+            if (data.success) {
+              queueItem.filePath = data.filePath;
+              queueItem.status = 'pending';
+              addLog('success', `已上傳: ${file.name}`);
+            } else {
+              throw new Error(data.error);
+            }
+          } catch (error) {
+            queueItem.status = 'error';
+            queueItem.error = error.message;
+            addLog('error', `上傳失敗: ${file.name} - ${error.message}`);
+          }
+        }
+        
+        updateQueueUI();
+        updateGenerateButton();
+      }
+    }
+    
+    function updateQueueUI() {
+      const queueSection = document.getElementById('uploadQueue');
+      const queueList = document.getElementById('queueList');
+      const queueTitle = document.getElementById('queueTitle');
+      const preview = document.getElementById('dropzonePreview');
+      const previewGrid = document.getElementById('previewGrid');
+      const previewName = document.getElementById('previewName');
+      const content = document.querySelector('.dropzone-content');
+      
+      if (uploadQueue.length === 0) {
+        queueSection.style.display = 'none';
+        preview.style.display = 'none';
+        content.style.display = 'flex';
+        document.getElementById('uploadDropzone').classList.remove('has-file');
+        return;
+      }
+      
+      // 顯示預覽網格
+      content.style.display = 'none';
+      preview.style.display = 'block';
+      document.getElementById('uploadDropzone').classList.add('has-file');
+      
+      previewGrid.innerHTML = uploadQueue.map((item, idx) => `
+        <div class="preview-item">
+          <img src="${item.previewUrl}" alt="預覽 ${idx + 1}">
+          <button class="preview-remove" onclick="removeFromQueue('${item.id}', event)" title="移除">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 6L6 18M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+      `).join('');
+      
+      previewName.textContent = `${uploadQueue.length} 張圖片`;
+      
+      // 顯示佇列狀態
+      queueSection.style.display = 'block';
+      const pendingCount = uploadQueue.filter(q => q.status === 'pending').length;
+      const processingCount = uploadQueue.filter(q => q.status === 'processing').length;
+      const completedCount = uploadQueue.filter(q => q.status === 'completed').length;
+      
+      queueTitle.textContent = `待處理: ${pendingCount} 張 | 進行中: ${processingCount} | 完成: ${completedCount}`;
+      
+      queueList.innerHTML = uploadQueue.map(item => {
+        const statusIcon = getStatusIcon(item.status);
+        const statusText = getStatusText(item.status, item.progress);
+        const statusClass = item.status;
+        
+        return `
+          <div class="queue-item ${statusClass}">
+            <img class="queue-thumb" src="${item.previewUrl}" alt="${item.fileName}">
+            <div class="queue-info">
+              <div class="queue-name">${item.fileName}</div>
+              <div class="queue-status ${statusClass}">
+                ${statusIcon}
+                <span>${statusText}</span>
+              </div>
+              ${item.status === 'processing' ? `
+                <div class="queue-progress">
+                  <div class="queue-progress-bar" style="width: ${item.progress}%"></div>
+                </div>
+              ` : ''}
+            </div>
+            ${item.status === 'pending' || item.status === 'error' ? `
+              <button class="queue-remove" onclick="removeFromQueue('${item.id}', event)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M18 6L6 18M6 6l12 12"/>
+                </svg>
+              </button>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+    
+    function getStatusIcon(status) {
+      switch (status) {
+        case 'uploading':
+          return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>';
+        case 'pending':
+          return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>';
+        case 'processing':
+          return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>';
+        case 'completed':
+          return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>';
+        case 'error':
+          return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>';
+        default:
+          return '';
+      }
+    }
+    
+    function getStatusText(status, progress) {
+      switch (status) {
+        case 'uploading': return '上傳中...';
+        case 'pending': return '等待處理';
+        case 'processing': return `生成中 ${progress}%`;
+        case 'completed': return '已完成';
+        case 'error': return '失敗';
+        default: return '';
+      }
+    }
+    
+    function removeFromQueue(id, event) {
+      if (event) event.stopPropagation();
+      
+      const idx = uploadQueue.findIndex(q => q.id === id);
+      if (idx >= 0) {
+        const item = uploadQueue[idx];
+        URL.revokeObjectURL(item.previewUrl); // 釋放記憶體
+        uploadQueue.splice(idx, 1);
+        addLog('info', `已移除: ${item.fileName}`);
+      }
+      
+      updateQueueUI();
+      updateGenerateButton();
+    }
+    
+    function clearQueue() {
+      // 只清除未處理和錯誤的項目
+      uploadQueue = uploadQueue.filter(q => q.status === 'processing');
+      uploadQueue.forEach(item => URL.revokeObjectURL(item.previewUrl));
+      uploadQueue = [];
+      
+      updateQueueUI();
+      updateGenerateButton();
+      addLog('info', '已清除佇列');
+    }
+    
+    function updateGenerateButton() {
+      const btn = document.getElementById('btnGenerate');
+      const btnText = document.getElementById('btnGenerateText');
+      const pendingCount = uploadQueue.filter(q => q.status === 'pending').length;
+      
+      if (isLoggedIn && pendingCount > 0 && !isProcessing) {
+        btn.disabled = false;
+        btnText.textContent = `開始生成 (${pendingCount} 張)`;
+      } else if (isProcessing) {
+        btn.disabled = true;
+        btnText.textContent = '處理中...';
+      } else {
+        btn.disabled = !isLoggedIn;
+        btnText.textContent = '開始生成';
+      }
+    }
+    
+    async function startBatchGeneration() {
+      const pendingItems = uploadQueue.filter(q => q.status === 'pending');
+      
+      if (pendingItems.length === 0) {
+        addLog('warning', '沒有待處理的圖片');
+        return;
+      }
+      
+      isProcessing = true;
+      updateGenerateButton();
+      addLog('info', `開始批次處理 ${pendingItems.length} 張圖片...`);
+      
+      for (const item of pendingItems) {
+        if (item.status !== 'pending') continue; // 可能已被移除
+        
+        currentProcessingId = item.id;
+        item.status = 'processing';
+        item.progress = 0;
+        updateQueueUI();
+        
+        const loop = document.getElementById('loopOption').checked;
+        addLog('info', `處理中: ${item.fileName}`);
+        
+        try {
+          const res = await fetch('/video/upload', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ imagePath: item.filePath, options: { loop } })
+          });
+          
+          const data = await res.json();
+          
+          if (data.success) {
+            addLog('success', `任務提交: ${item.fileName}`);
+            
+            // 等待這個任務完成
+            await waitForCompletion(item);
+          } else {
+            throw new Error(data.error);
+          }
+        } catch (error) {
+          item.status = 'error';
+          item.error = error.message;
+          addLog('error', `${item.fileName} 失敗: ${error.message}`);
+        }
+        
+        updateQueueUI();
+        
+        // 短暫延遲後處理下一個
+        if (pendingItems.indexOf(item) < pendingItems.length - 1) {
+          addLog('info', '準備處理下一張...');
+          await new Promise(r => setTimeout(r, 3000));
+        }
+      }
+      
+      isProcessing = false;
+      currentProcessingId = null;
+      updateGenerateButton();
+      
+      const completedCount = uploadQueue.filter(q => q.status === 'completed').length;
+      addLog('success', `批次處理完成！共 ${completedCount} 張`);
+    }
+    
+    function waitForCompletion(item) {
+      return new Promise((resolve) => {
+        const checkInterval = setInterval(() => {
+          // 檢查是否完成（由 WebSocket 更新）
+          if (item.status === 'completed' || item.status === 'error') {
+            clearInterval(checkInterval);
+            resolve();
+          }
+        }, 1000);
+        
+        // 超時 5 分鐘
+        setTimeout(() => {
+          if (item.status === 'processing') {
+            item.status = 'completed'; // 假設完成
+            addLog('warning', `${item.fileName} 處理超時，視為完成`);
+          }
+          clearInterval(checkInterval);
+          resolve();
+        }, 300000);
+      });
+    }
+    
+    function connectWebSocket() {
+      const wsUrl = `ws://${window.location.host}`;
+      ws = new WebSocket(wsUrl);
+      
+      ws.onopen = () => {
+        updateWsStatus('active', '已連線');
+        addLog('info', 'WebSocket 連線成功');
+      };
+      
+      ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        handleWsMessage(data);
+      };
+      
+      ws.onclose = () => {
+        updateWsStatus('error', '已斷線');
+        addLog('warning', '連線中斷，正在重連...');
+        setTimeout(connectWebSocket, 3000);
+      };
+      
+      ws.onerror = () => {
+        updateWsStatus('error', '錯誤');
+      };
+    }
+    
+    function handleWsMessage(data) {
+      switch(data.type) {
+        case 'status':
+          updateStatusItem('serverStatusItem', data.server ? 'active' : '');
+          updateStatusItem('browserStatusItem', data.browser ? 'active' : '');
+          updateStatusItem('loginStatusItem', data.login ? 'active' : '');
+          break;
+        case 'log':
+          addLog(data.level || 'info', data.message);
+          break;
+        case 'browser_connected':
+          updateStatusItem('browserStatusItem', 'active');
+          addLog('success', 'Chrome 瀏覽器已連線');
+          document.getElementById('btnCheckLogin').disabled = false;
+          break;
+        case 'login_status':
+          isLoggedIn = data.isLoggedIn;
+          updateStatusItem('loginStatusItem', data.isLoggedIn ? 'active' : 'pending');
+          if (data.isLoggedIn) {
+            addLog('success', 'Midjourney 已登入，可以開始生成！');
+            updateGenerateButton();
+          } else {
+            addLog('warning', '請在瀏覽器中登入 Midjourney');
+          }
+          break;
+        case 'job_started':
+          showProgress(data.jobId);
+          addLog('info', `任務開始: ${data.jobId?.slice(0, 8) || '--'}...`);
+          break;
+        case 'progress':
+          updateProgress(data.progress, data.jobId, data.status);
+          // 同步更新佇列中的項目
+          if (currentProcessingId) {
+            const item = uploadQueue.find(q => q.id === currentProcessingId);
+            if (item) {
+              item.progress = data.progress;
+              if (data.progress === 100 || data.status === 'complete') {
+                item.status = 'completed';
+              }
+              updateQueueUI();
+            }
+          }
+          break;
+        case 'video_progress':
+          addLog(data.level || 'info', data.message);
+          break;
+        case 'video_complete':
+          updateProgress(100, data.jobId, 'complete');
+          addLog('success', `影片生成完成！`);
+          // 標記當前處理項目為完成
+          if (currentProcessingId) {
+            const item = uploadQueue.find(q => q.id === currentProcessingId);
+            if (item) {
+              item.status = 'completed';
+              item.progress = 100;
+              updateQueueUI();
+            }
+          }
+          // 請求抓取影片
+          fetchVideos();
+          break;
+        case 'videos_found':
+          displayVideos(data.videos);
+          addLog('success', `找到 ${data.videos?.length || 0} 部影片 (Job: ${data.jobId?.slice(0, 8) || '--'}...)`);
+          break;
+        case 'error':
+          addLog('error', data.message);
+          break;
+      }
+    }
+    
+    // Progress functions
+    function showProgress(jobId) {
+      const section = document.getElementById('progressSection');
+      section.classList.add('active');
+      document.getElementById('progressJobId').textContent = jobId ? `ID: ${jobId.slice(0, 8)}...` : '--';
+      updateProgress(0, jobId, 'starting');
+    }
+    
+    function updateProgress(percent, jobId, status) {
+      const bar = document.getElementById('progressBar');
+      const percentText = document.getElementById('progressPercent');
+      const statusEl = document.getElementById('progressStatus');
+      
+      bar.style.width = `${percent}%`;
+      percentText.textContent = `${percent}%`;
+      
+      if (status === 'complete') {
+        statusEl.classList.add('complete');
+        statusEl.innerHTML = `
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+            <path d="M22 4L12 14.01l-3-3"/>
+          </svg>
+          <span>完成！</span>
+        `;
+      } else {
+        statusEl.classList.remove('complete');
+        const statusText = status === 'starting' ? '啟動中...' : '處理中...';
+        statusEl.innerHTML = `
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+          </svg>
+          <span>${statusText}</span>
+        `;
+      }
+    }
+    
+    async function checkServerStatus() {
+      try {
+        const res = await fetch('/health');
+        if (res.ok) {
+          updateStatusItem('serverStatusItem', 'active');
+          addLog('success', '伺服器運行中');
+        }
+      } catch (e) {
+        updateStatusItem('serverStatusItem', 'error');
+        addLog('error', '無法連線到伺服器');
+      }
+    }
+    
+    async function launchAndConnect() {
+      const btn = document.getElementById('btnLaunch');
+      btn.disabled = true;
+      
+      updateStatusItem('browserStatusItem', 'pending');
+      addLog('info', '正在啟動 Chrome...');
+      
+      try {
+        const launchRes = await fetch('/browser/launch', { method: 'POST' });
+        const launchData = await launchRes.json();
+        
+        if (!launchData.success && !launchData.message?.includes('已')) {
+          throw new Error(launchData.error || '啟動失敗');
+        }
+        
+        addLog('info', '正在連接瀏覽器...');
+        await new Promise(r => setTimeout(r, 2000));
+        
+        const connectRes = await fetch('/browser/connect', { method: 'POST' });
+        const connectData = await connectRes.json();
+        
+        if (!connectData.success) {
+          throw new Error(connectData.error || '連接失敗');
+        }
+        
+        updateStatusItem('browserStatusItem', 'active');
+        addLog('success', '瀏覽器已連線');
+        
+        addLog('info', '正在導航到 Midjourney...');
+        const navRes = await fetch('/browser/navigate', { method: 'POST' });
+        const navData = await navRes.json();
+        
+        isLoggedIn = navData.isLoggedIn;
+        updateStatusItem('loginStatusItem', isLoggedIn ? 'active' : 'pending');
+        
+        if (isLoggedIn) {
+          addLog('success', '已登入 Midjourney！');
+          updateGenerateButton();
+        } else {
+          addLog('warning', '請在瀏覽器中登入後點擊「檢查狀態」');
+        }
+        
+        document.getElementById('btnCheckLogin').disabled = false;
+        
+      } catch (error) {
+        updateStatusItem('browserStatusItem', 'error');
+        addLog('error', error.message);
+      } finally {
+        btn.disabled = false;
+      }
+    }
+    
+    async function checkLoginStatus() {
+      addLog('info', '檢查登入狀態...');
+      
+      try {
+        const res = await fetch('/auth/status');
+        const data = await res.json();
+        
+        isLoggedIn = data.isLoggedIn;
+        updateStatusItem('loginStatusItem', isLoggedIn ? 'active' : 'pending');
+        
+        if (isLoggedIn) {
+          addLog('success', '已登入！');
+          updateGenerateButton();
+        } else {
+          addLog('warning', '尚未登入');
+        }
+      } catch (error) {
+        addLog('error', error.message);
+      }
+    }
+    
+    function updateStatusItem(id, status) {
+      const el = document.getElementById(id);
+      el.className = 'status-item ' + status;
+    }
+    
+    function updateWsStatus(status, text) {
+      const dot = document.getElementById('wsStatusDot');
+      dot.className = 'status-dot';
+      if (status === 'active') dot.classList.add('active');
+      else if (status === 'error') dot.classList.add('error');
+      document.getElementById('wsStatusText').textContent = text;
+    }
+    
+    function addLog(level, message) {
+      const container = document.getElementById('logContainer');
+      const time = new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      
+      const entry = document.createElement('div');
+      entry.className = 'log-entry ' + level;
+      entry.innerHTML = `${icons[level] || icons.info}<span class="log-text">${message}</span><span class="log-time">${time}</span>`;
+      
+      container.appendChild(entry);
+      container.scrollTop = container.scrollHeight;
+    }
+    
+    // ========== 影片功能 ==========
+    async function fetchVideos() {
+      addLog('info', '正在抓取生成的影片...');
+      try {
+        const res = await fetch('/videos/fetch', { method: 'POST' });
+        const data = await res.json();
+        if (data.success && data.videos) {
+          displayVideos(data.videos);
+        }
+      } catch (error) {
+        addLog('error', `抓取影片失敗: ${error.message}`);
+      }
+    }
+    
+    function displayVideos(videos) {
+      const section = document.getElementById('videoSection');
+      const grid = document.getElementById('videoGrid');
+      const count = document.getElementById('videoCount');
+      
+      if (!videos || videos.length === 0) {
+        addLog('warning', '未找到影片');
+        return;
+      }
+      
+      section.classList.add('active');
+      count.textContent = `${videos.length} 部影片`;
+      grid.innerHTML = '';
+      
+      videos.forEach((video, index) => {
+        const card = document.createElement('div');
+        card.className = 'video-card';
+        
+        // 使用縮圖作為 poster
+        const posterAttr = video.thumbnail ? `poster="${video.thumbnail}"` : '';
+        
+        card.innerHTML = `
+          <span class="video-index">${video.index !== undefined ? video.index + 1 : index + 1}</span>
+          <video src="${video.url}" ${posterAttr} loop muted playsinline preload="metadata"></video>
+          <div class="video-overlay">
+            <div class="video-actions">
+              <button class="video-btn" onclick="window.open('${video.url}', '_blank')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/>
+                  <path d="M15 3h6v6"/>
+                  <path d="M10 14L21 3"/>
+                </svg>
+                開啟
+              </button>
+              <button class="video-btn primary" onclick="downloadVideo('${video.url}', ${video.index !== undefined ? video.index + 1 : index + 1})">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                  <polyline points="7 10 12 15 17 10"/>
+                  <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                下載
+              </button>
+            </div>
+          </div>
+        `;
+        
+        // 滑鼠懸停自動播放
+        const videoEl = card.querySelector('video');
+        
+        // 處理載入錯誤
+        videoEl.addEventListener('error', (e) => {
+          console.error('影片載入失敗:', video.url);
+          addLog('warning', `影片 ${video.index + 1} 載入失敗，可能需要直接開啟連結`);
+        });
+        
+        card.addEventListener('mouseenter', () => {
+          videoEl.play().catch(e => console.log('播放失敗:', e));
+        });
+        card.addEventListener('mouseleave', () => {
+          videoEl.pause();
+          videoEl.currentTime = 0;
+        });
+        
+        grid.appendChild(card);
+      });
+      
+      addLog('success', `已載入 ${videos.length} 部影片`);
+    }
+    
+    async function downloadVideo(url, index) {
+      addLog('info', `正在下載影片 ${index}...`);
+      try {
+        const res = await fetch(url);
+        const blob = await res.blob();
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `midjourney-video-${index}-${Date.now()}.mp4`;
+        a.click();
+        URL.revokeObjectURL(a.href);
+        addLog('success', `影片 ${index} 下載完成`);
+      } catch (error) {
+        addLog('error', `下載失敗: ${error.message}`);
+        // 備用：直接開啟連結
+        window.open(url, '_blank');
+      }
+    }
+  </script>
+</body>
+</html>

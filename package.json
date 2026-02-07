@@ -1,0 +1,18 @@
+{
+  "name": "midjourney-proxy",
+  "version": "1.0.0",
+  "description": "Midjourney proxy server using Playwright browser automation",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "multer": "^2.0.2",
+    "playwright": "^1.40.0",
+    "ws": "^8.19.0"
+  }
+}

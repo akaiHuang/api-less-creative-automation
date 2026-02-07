@@ -1,0 +1,43 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+# Environment & Secrets
+.env
+.env.local
+.env.*.local
+*-firebase-adminsdk-*.json
+*-adminsdk-*.json
+serviceAccountKey.json
+credentials.json
+
+# Build outputs
+.next/
+dist/
+out/
+build/
+.firebase/
+.vercel/
+
+# IDE & OS
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swa
+
+# Logs & Data
+*.log
+logs/
+
+# Platform specific
+.expo/
+.wrangler/
+.playwright-mcp/
+browser_data/
+uploads/
+

@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Threads 登入成功</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    .container {
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 500px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      text-align: center;
+    }
+    .icon {
+      font-size: 64px;
+      margin-bottom: 20px;
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+      font-size: 24px;
+    }
+    .status {
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 16px;
+    }
+    .token-box {
+      background: #f5f5f5;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      text-align: left;
+    }
+    .token-box label {
+      display: block;
+      font-size: 12px;
+      color: #888;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .token-box .value {
+      font-family: monospace;
+      font-size: 14px;
+      word-break: break-all;
+      color: #333;
+      background: white;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      max-height: 100px;
+      overflow-y: auto;
+    }
+    .copy-btn {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 5px;
+      transition: background 0.3s;
+    }
+    .copy-btn:hover {
+      background: #5a6fd6;
+    }
+    .copy-btn:active {
+      transform: scale(0.98);
+    }
+    .instructions {
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid #eee;
+      color: #666;
+      font-size: 14px;
+    }
+    .instructions ol {
+      text-align: left;
+      margin-top: 10px;
+      padding-left: 20px;
+    }
+    .instructions li {
+      margin-bottom: 8px;
+    }
+    .error {
+      color: #e74c3c;
+      background: #fdeaea;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    .loading {
+      display: none;
+    }
+    .loading.show {
+      display: block;
+    }
+    .spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #667eea;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="loading" class="loading show">
+      <div class="spinner"></div>
+      <p>正在取得 Token...</p>
+    </div>
+    
+    <div id="success" style="display: none;">
+      <div class="icon">✅</div>
+      <h1>登入成功！</h1>
+      <p class="status">已取得 Threads 存取權杖</p>
+      
+      <div class="token-box">
+        <label>Access Token</label>
+        <div class="value" id="tokenValue">-</div>
+      </div>
+      
+      <div class="token-box">
+        <label>User ID</label>
+        <div class="value" id="userIdValue">-</div>
+      </div>
+      
+      <button class="copy-btn" onclick="copyToken()">📋 複製 Token</button>
+      <button class="copy-btn" onclick="copyUserId()">📋 複製 User ID</button>
+      
+      <div class="instructions">
+        <strong>📱 下一步：</strong>
+        <ol>
+          <li>回到 IgShare App</li>
+          <li>在「手動輸入 Token」區域貼上以上資訊</li>
+          <li>點擊「設定 Token」</li>
+        </ol>
+      </div>
+    </div>
+    
+    <div id="error" style="display: none;">
+      <div class="icon">❌</div>
+      <h1>授權失敗</h1>
+      <p class="error" id="errorMessage">未知錯誤</p>
+      <button class="copy-btn" onclick="location.reload()">🔄 重試</button>
+    </div>
+  </div>
+
+  <script>
+    // 從 URL 取得授權碼
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    const errorParam = urlParams.get('error');
+    const errorDescription = urlParams.get('error_description');
+    
+    // App 設定（從環境變數讀取或硬編碼測試用）
+    const APP_ID = '1243832527885810';
+    const APP_SECRET = '7c29e2d3cc071b26ae75406a9bc514bb';
+    // 使用 ngrok URL
+    const REDIRECT_URI = 'https://cafa7ff8f4ec.ngrok-free.app/threads-callback.html';
+    
+    let tokenData = null;
+    
+    async function init() {
+      const loadingEl = document.getElementById('loading');
+      const successEl = document.getElementById('success');
+      const errorEl = document.getElementById('error');
+      
+      if (errorParam) {
+        showError(errorDescription || errorParam);
+        return;
+      }
+      
+      if (!code) {
+        showError('沒有收到授權碼，請重新登入');
+        return;
+      }
+      
+      try {
+        // 用授權碼換取 Token
+        const response = await fetch('https://graph.threads.net/oauth/access_token', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: new URLSearchParams({
+            client_id: APP_ID,
+            client_secret: APP_SECRET,
+            grant_type: 'authorization_code',
+            redirect_uri: REDIRECT_URI,
+            code: code,
+          }),
+        });
+        
+        const data = await response.json();
+        
+        if (data.error) {
+          showError(data.error_message || data.error.message || '取得 Token 失敗');
+          return;
+        }
+        
+        tokenData = data;
+        
+        // 顯示成功
+        loadingEl.style.display = 'none';
+        successEl.style.display = 'block';
+        document.getElementById('tokenValue').textContent = data.access_token;
+        document.getElementById('userIdValue').textContent = data.user_id;
+        
+      } catch (err) {
+        showError('網路錯誤: ' + err.message);
+      }
+    }
+    
+    function showError(message) {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('error').style.display = 'block';
+      document.getElementById('errorMessage').textContent = message;
+    }
+    
+    function copyToken() {
+      if (tokenData?.access_token) {
+        navigator.clipboard.writeText(tokenData.access_token);
+        alert('已複製 Token！');
+      }
+    }
+    
+    function copyUserId() {
+      if (tokenData?.user_id) {
+        navigator.clipboard.writeText(tokenData.user_id);
+        alert('已複製 User ID！');
+      }
+    }
+    
+    // 啟動
+    init();
+  </script>
+</body>
+</html>
