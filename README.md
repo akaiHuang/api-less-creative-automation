@@ -8,6 +8,10 @@ A reverse-engineered proxy server that bridges the gap between your applications
 
 API-Less Creative Automation 透過逆向工程建立 Midjourney 的代理層，讓既有系統能在沒有官方 API 的前提下自動化影像生成工作流。適合需要將生成式影像能力串進內部工具或管線的團隊，用於原型驗證與流程整合。
 
+## About (EN)
+
+API-Less Creative Automation provides a reverse-engineered proxy layer for Midjourney workflows when no official API is available. It is intended for teams that need to integrate image generation into internal creative pipelines.
+
 ## 📋 Quick Summary
 
 > 🎨 **API-Less Creative Automation** 是一套逆向工程的 Midjourney 代理伺服器，解決 Midjourney 不提供官方公開 API 的痛點。系統透過 🎭 Playwright 維持一個持久化的 Chromium 瀏覽器會話，自動保存登入狀態與 Cookie 🍪，然後在其上層封裝出完整的 🔌 REST API 與 WebSocket 即時通訊介面。任何外部應用——無論是 📱 行動 App、🌐 網頁前端或後端服務——都能透過標準 HTTP 請求觸發 Midjourney 的影片生成、圖片上傳、動畫製作等操作。每個生成任務分配唯一 Job ID 🆔，支援輪詢或 WebSocket 訂閱追蹤進度百分比與狀態變化。檔案上傳管線透過 📁 Multer 支援最大 50MB 的參考圖片。技術架構為 ⚡ Node.js + Express + Playwright + WebSocket，伺服器啟動於 localhost:3001，附帶內建管理儀表板 📊 可視化管理瀏覽器會話與監控任務狀態。適合需要將 Midjourney 整合進自動化工作流的創意團隊與開發者 🚀。
